@@ -1,5 +1,29 @@
 #include "symnmf.h"
 
+struct PointType {
+    double *data;
+    int length;
+};
+
+struct ListType {
+    Point *pointsArr;
+    int length;
+};
+
+void handleError(void);
+double distance(Point p1, Point p2);
+void addPointToList(PointList*, Point);
+PointList readInput(char*);
+double** createMatrixDynamically(int rows, int columns);
+void printMatrix(double **a, int rows, int columns);
+double** mulMatrices(double** a, double** b, int rowsA, int columnsARowsB, int columnsB);
+double** subMatrices(double** a, double** b, int rows, int columns);
+double** transpose(double** a, int rows, int columns);
+double frobeniusNorm(double** a, int rows, int columns);
+double** symnmf(double** h0, double** w, int rows, int columns);
+int isConverged(double** h0, double** h1, int rows, int columns);
+double** updateH(double** h, double** w, int rows, int columns);
+
 void handleError(void) {
     printf("An Error Has Occurred\n");
     exit(1);
@@ -72,17 +96,20 @@ PointList readInput(char* fileName) {
 double** createMatrixDynamically(int rows, int columns) {
     double *p;
     double **a;
+    int i;
     p = calloc(rows*columns, sizeof(double));
     a = calloc(rows,sizeof(double *));
-    for (int i=0 ; i<rows; i++)
+    for (i=0; i<rows; i++)
         a[i] = p+i*columns;
     return a;
 }
 
 void printMatrix(double **a, int rows, int columns) {
-    for (int i = 0; i < rows; i++)
+    int i;
+    int j;
+    for (i = 0; i < rows; i++)
     {
-        for (int j = 0; j < columns; j++)
+        for (j = 0; j < columns; j++)
         {
             printf("%.4f", a[i][j]);
             if (j != columns-1)
@@ -94,9 +121,12 @@ void printMatrix(double **a, int rows, int columns) {
 
 double** mulMatrices(double** a, double** b, int rowsA, int columnsARowsB, int columnsB) {
     double **mul = createMatrixDynamically(rowsA, columnsB);
-    for (int i = 0; i < rowsA; i++) {
-        for (int j = 0; j < columnsB; j++){
-            for (int k = 0; k < columnsARowsB; k++) {
+    int i;
+    int j;
+    int k;
+    for (i = 0; i < rowsA; i++) {
+        for (j = 0; j < columnsB; j++){
+            for (k = 0; k < columnsARowsB; k++) {
                 mul[i][j] += a[i][k]*b[k][j];
             }
         }
@@ -106,8 +136,10 @@ double** mulMatrices(double** a, double** b, int rowsA, int columnsARowsB, int c
 
 double** subMatrices(double** a, double** b, int rows, int columns) {
     double** sub = createMatrixDynamically(rows,columns);
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < columns; ++j) {
+    int i;
+    int j;
+    for (i = 0; i < rows; ++i) {
+        for (j = 0; j < columns; ++j) {
             sub[i][j] = a[i][j] - b[i][j];
         }
     }
@@ -116,8 +148,10 @@ double** subMatrices(double** a, double** b, int rows, int columns) {
 
 double** transpose(double** a, int rows, int columns) {
     double **transposed = createMatrixDynamically(columns, rows);
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < columns; j++) {
+    int i;
+    int j;
+    for (i = 0; i < rows; i++) {
+        for (j = 0; j < columns; j++) {
             transposed[j][i] = a[i][j];
         }
     }
@@ -126,8 +160,10 @@ double** transpose(double** a, int rows, int columns) {
 
 double frobeniusNorm(double** a, int rows, int columns) {
     double sum = 0.0;
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < columns; ++j) {
+    int i;
+    int j;
+    for (i = 0; i < rows; ++i) {
+        for (j = 0; j < columns; ++j) {
             sum += pow(fabs(a[i][j]),2);
             sum = sqrt(sum);
         }
@@ -139,8 +175,10 @@ double frobeniusNorm(double** a, int rows, int columns) {
 double** sym(PointList *pointList) {
     int n = pointList->length;
     double **a = createMatrixDynamically(n,n);
-    for (int i=0 ; i<n; i++) {
-        for (int j=0 ; j<n; j++) {
+    int i;
+    int j;
+    for (i=0 ; i<n; i++) {
+        for (j=0 ; j<n; j++) {
             if (i != j)
                 a[i][j] = exp(-0.5 * pow(distance(pointList->pointsArr[i], pointList->pointsArr[j]), 2));
             else
@@ -155,8 +193,10 @@ double** ddg(PointList *pointList) {
     double **ddg = createMatrixDynamically(n,n);
     double **symMatrix = sym(pointList);
     double sumRow = 0.0;
-    for (int i=0 ; i<n; i++) {
-        for (int j=0 ; j<n; j++) {
+    int i;
+    int j;
+    for (i=0 ; i<n; i++) {
+        for (j=0 ; j<n; j++) {
             sumRow += symMatrix[i][j];
             if (j == n-1) {
                 ddg[i][i] = sumRow;
@@ -173,24 +213,22 @@ double** norm(PointList *pointList) {
     int n = pointList->length;
     double **ddgMatrix = ddg(pointList);
     double **symMatrix = sym(pointList);
-    for (int i=0 ; i<n; i++) {
+    int i;
+    int j;
+    for (i=0 ; i<n; i++) {
         ddgMatrix[i][i] = 1/sqrt(ddgMatrix[i][i]);
     }
-    for (int i=0 ; i<n; i++) {
-        for (int j=0 ; j<n; j++) {
+    for (i=0 ; i<n; i++) {
+        for (j=0 ; j<n; j++) {
             symMatrix[i][j] = ddgMatrix[i][i]*symMatrix[i][j]*ddgMatrix[j][j];
         }
     }
     return symMatrix;
 }
 
-double** symnmf(double** h0, PointList* pointList) { // NEED TO PUT K INSTEAD OF 2
-    double** normMatrix = norm(pointList);
-    double** symnmf = converge(h0, normMatrix, pointList->length, 2); //dim of h0: rows x columns. dim of w: rows x rows.
-    return symnmf;
-};
 
-double** converge(double** h0, double** w, int rows, int columns) {
+double** symnmf(double** h0, double** w, int rows, int columns) {
+    //dim of h0: rows x columns. dim of w: rows x rows.
     int i = 0;
     double** h1;
     while (i < MAX_ITER) {
@@ -201,7 +239,7 @@ double** converge(double** h0, double** w, int rows, int columns) {
         h0 = h1;
         i++;
     }
-    return h1;
+    return h0;
 }
 
 int isConverged(double** h0, double** h1, int rows, int columns) {
@@ -220,33 +258,19 @@ double** updateH(double** h, double** w, int rows, int columns) { //dim of h: ro
     double** Ht = transpose(h, rows, columns);
     double** HTimesHt = mulMatrices(h, Ht, rows, columns, rows);
     double** HTimesHtTimesH = mulMatrices(HTimesHt, h, rows, rows, columns);
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < columns; ++j) {
+    int i;
+    int j;
+    for (i = 0; i < rows; ++i) {
+        for (j = 0; j < columns; ++j) {
             updated[i][j] = h[i][j]*(1-0.5+0.5*WH[i][j]/HTimesHtTimesH[i][j]);
         }
     }
     return updated;
 }
 
-int check() {
-    PointList points = readInput("input_1.txt");
-    PointList *pointsPtr = &points;
-    double **matrix1 = sym(pointsPtr);
-    double **matrix2 = ddg(pointsPtr);
-    double **matrix3 = norm(pointsPtr);
-
-    printMatrix(matrix1, points.length, points.length);
-    printf("\n\n\n");
-    printMatrix(matrix2, points.length, points.length);
-    printf("\n\n\n");
-    printMatrix(matrix3, points.length, points.length);
-    printf("\n\n\n");
-
-    return 0;
-}
-
 
 int main(int argc, char *argv[]) {
+    if (argc > 3) handleError();
     PointList pointList = readInput(argv[2]);
     PointList* pointListPtr = &pointList;
     double** matrix;
