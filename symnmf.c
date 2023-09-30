@@ -1,15 +1,5 @@
 #include "symnmf.h"
 
-struct PointType {
-    double *data;
-    int length;
-};
-
-struct ListType {
-    Point *pointsArr;
-    int length;
-};
-
 void handleError(void);
 double distance(Point p1, Point p2);
 void addPointToList(PointList*, Point);
@@ -83,7 +73,6 @@ PointList readInput(char* fileName) {
                 ptr += currLen + 1;
                 currLen = 0;
             }
-
         }
         p.data = data;
         p.length = dLength;
@@ -226,9 +215,10 @@ double** norm(PointList *pointList) {
     return symMatrix;
 }
 
-
+/*
+ * dim of h0: rows x columns. dim of w: rows x rows.
+ */
 double** symnmf(double** h0, double** w, int rows, int columns) {
-    //dim of h0: rows x columns. dim of w: rows x rows.
     int i = 0;
     double** h1;
     while (i < MAX_ITER) {
@@ -251,7 +241,6 @@ int isConverged(double** h0, double** h1, int rows, int columns) {
         return 0;
 }
 
-
 double** updateH(double** h, double** w, int rows, int columns) { //dim of h: rows x columns. dim of w: rows x rows.
     double** updated = createMatrixDynamically(rows,columns);
     double** WH = mulMatrices(w, h, rows, rows, columns);
@@ -268,10 +257,10 @@ double** updateH(double** h, double** w, int rows, int columns) { //dim of h: ro
     return updated;
 }
 
-
 int main(int argc, char *argv[]) {
     if (argc > 3) handleError();
-    PointList pointList = readInput(argv[2]);
+    PointList pointList;
+    pointList = readInput(argv[2]);
     PointList* pointListPtr = &pointList;
     double** matrix;
     if (strcmp(argv[1], "sym")) {
