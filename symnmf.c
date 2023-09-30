@@ -241,7 +241,10 @@ int isConverged(double** h0, double** h1, int rows, int columns) {
         return 0;
 }
 
-double** updateH(double** h, double** w, int rows, int columns) { //dim of h: rows x columns. dim of w: rows x rows.
+/*
+ * dim of h: rows x columns. dim of w: rows x rows.
+ */
+double** updateH(double** h, double** w, int rows, int columns) {
     double** updated = createMatrixDynamically(rows,columns);
     double** WH = mulMatrices(w, h, rows, rows, columns);
     double** Ht = transpose(h, rows, columns);
@@ -258,11 +261,11 @@ double** updateH(double** h, double** w, int rows, int columns) { //dim of h: ro
 }
 
 int main(int argc, char *argv[]) {
+    PointList pointList, *pointListPtr;
+    double** matrix = NULL;
     if (argc > 3) handleError();
-    PointList pointList;
     pointList = readInput(argv[2]);
-    PointList* pointListPtr = &pointList;
-    double** matrix;
+    pointListPtr = &pointList;
     if (strcmp(argv[1], "sym")) {
         matrix = sym(pointListPtr);
     } else if (strcmp(argv[1], "ddg")) {
