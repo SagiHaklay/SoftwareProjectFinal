@@ -1,5 +1,6 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
+#include "symnmf.h"
 
 double** matrixPytonToC(PyObject* pyMatrix){
     // convert python nested list to C double 2D array
@@ -59,37 +60,39 @@ PyObject* matrixCToPython(double** cMatrix, int rowNum, int colNum){
     return pyMatrix;
 }
 
-static PyObject* symnmf(PyObject* self, PyObject* args) {
+
+
+static PyObject* symnmf_method(PyObject* self, PyObject* args) {
 
 }
 
-static PyObject* sym(PyObject* self, PyObject* args) {
+static PyObject* sym_method(PyObject* self, PyObject* args) {
 
 }
 
-static PyObject* ddg(PyObject* self, PyObject* args) {
+static PyObject* ddg_method(PyObject* self, PyObject* args) {
 
 }
 
-static PyObject* norm(PyObject* self, PyObject* args) {
+static PyObject* norm_method(PyObject* self, PyObject* args) {
 
 }
 
 static PyMethodDef symnmfMethods[] = {
     {"symnmf",
-    (PyCFunction)symnmf,
+    (PyCFunction)symnmf_method,
     METH_VARARGS,
     PyDoc_STR("Receives initial decomposition H and normalized similarity W and optimizes H")},
     {"sym",
-    (PyCFunction)sym,
+    (PyCFunction)sym_method,
     METH_VARARGS,
     PyDoc_STR("Receives Datapoints and returns similarity matrix")},
     {"ddg",
-    (PyCFunction)ddg,
+    (PyCFunction)ddg_method,
     METH_VARARGS,
     PyDoc_STR("Receives datapoints and returns diagonal degree matrix")},
     {"norm",
-    (PyCFunction)norm,
+    (PyCFunction)norm_method,
     METH_VARARGS,
     PyDoc_STR("Receives datapoints and returns normalized similarity matrix")},
     {NULL, NULL, 0, NULL}
