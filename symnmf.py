@@ -1,6 +1,7 @@
 import sys
 import math
 import numpy as np
+import symNMF
 
 def read_from_file(filename):
     datapoints = []
@@ -27,18 +28,18 @@ filename = sys.argv[3]
 dp = read_from_file(filename)
 result = dp
 if goal=='symnmf':
-    # w = norm(dp)
-    # h = init_h(k, len(dp), w)
-    # result = symnmf(h, w)
+    w = symNMF.norm(dp)
+    h = init_h(k, len(dp), w)
+    result = symNMF.symnmf(h, w)
     pass
 elif goal=='sym':
-    # result = sym(dp)
+    result = symNMF.sym(dp)
     pass
 elif goal=='ddg':
-    # result = ddg(dp)
+    result = symNMF.ddg(dp)
     pass
 elif goal=='norm':
-    # result = norm(dp)
+    result = symNMF.norm(dp)
     pass
 # print result
 for row in result:
