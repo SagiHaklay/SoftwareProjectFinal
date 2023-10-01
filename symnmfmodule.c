@@ -42,7 +42,7 @@ double** matrixPytonToC(PyObject* pyMatrix, int* rowNum, int* colNum, PointList*
         }
         if (points != NULL) {
             points->pointsArr[i].data = rowData;
-            points->length = *colNum;
+            points->pointsArr[i].length = *colNum;
         } else {
             cMatrix[i] = rowData;
         }
@@ -82,7 +82,20 @@ PyObject* matrixCToPython(double** cMatrix, int rowNum, int colNum){
     return pyMatrix;
 }
 
-
+void freePointList(PointList list) {
+    int i;
+    for (i = 0; i < list.length; i++) {
+        free(list.pointsArr[i].data);
+    }
+    free(list.pointsArr);
+}
+void freeMatrix(double **mat, int rows) {
+    int i;
+    for (i = 0; i < rows; i++) {
+        free(mat[i]);
+    }
+    free(mat);
+}
 
 static PyObject* symnmf_method(PyObject* self, PyObject* args) {
     PyObject *pyH, *pyW, *result;
@@ -95,6 +108,9 @@ static PyObject* symnmf_method(PyObject* self, PyObject* args) {
     cW = matrixPytonToC(pyW, &rows, &rows, NULL);
     cResult = symnmf(cH, cW, rows, cols);
     result = matrixCToPython(cResult, rows, cols);
+    freeMatrix(cH, rows);
+    freeMatrix(cW, rows);
+    //freeMatrix(cResult, rows);
     return result;
 }
 
@@ -108,7 +124,9 @@ static PyObject* sym_method(PyObject* self, PyObject* args) {
     }
     matrixPytonToC(datapoints, &rowNum, &colNum, &points);
     cResult = sym(&points);
-    result = matrixCToPython(cResult, rowNum, colNum);
+    result = matrixCToPython(cResult, rowNum, rowNum);
+    freePointList(points);
+    //freeMatrix(cResult, rowNum);
     return result;
 }
 
@@ -122,12 +140,14 @@ static PyObject* ddg_method(PyObject* self, PyObject* args) {
     }
     matrixPytonToC(datapoints, &rowNum, &colNum, &points);
     cResult = ddg(&points);
-    result = matrixCToPython(cResult, rowNum, colNum);
+    result = matrixCToPython(cResult, rowNum, rowNum);
+    freePointList(points);
+    //freeMatrix(cResult, rowNum);
     return result;
 }
 
 static PyObject* norm_method(PyObject* self, PyObject* args) {
-    PointList points = {pointsArr: NULL, length: 0};
+    PointList points;
     PyObject *datapoints, *result;
     double** cResult;
     int rowNum, colNum;
@@ -136,7 +156,9 @@ static PyObject* norm_method(PyObject* self, PyObject* args) {
     }
     matrixPytonToC(datapoints, &rowNum, &colNum, &points);
     cResult = norm(&points);
-    result = matrixCToPython(cResult, rowNum, colNum);
+    result = matrixCToPython(cResult, rowNum, rowNum);
+    freePointList(points);
+    //freeMatrix(cResult, rowNum);
     return result;
 }
 
