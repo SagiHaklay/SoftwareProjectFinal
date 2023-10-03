@@ -266,11 +266,11 @@ int main(int argc, char *argv[]) {
     if (argc > 3) handleError();
     pointList = readInput(argv[2]);
     pointListPtr = &pointList;
-    if (strcmp(argv[1], "sym")) {
+    if (strcmp(argv[1], "sym") == 0) {
         matrix = sym(pointListPtr);
-    } else if (strcmp(argv[1], "ddg")) {
+    } else if (strcmp(argv[1], "ddg") == 0) {
         matrix = ddg(pointListPtr);
-    } else if (strcmp(argv[1], "norm")) {
+    } else if (strcmp(argv[1], "norm") == 0) {
         matrix = norm(pointListPtr);
     } else {
         handleError();
