@@ -261,6 +261,7 @@ double** updateH(double** h, double** w, int rows, int columns) {
 }
 
 int main(int argc, char *argv[]) {
+
     PointList pointList, *pointListPtr;
     double** matrix = NULL;
     if (argc > 3) handleError();
