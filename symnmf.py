@@ -39,7 +39,6 @@ try:
     elif goal=='norm':
         result = symNMF.norm(dp)
     # print result
-    #print(result)
     for row in result:
         str_list = ["%.4f" % cell for cell in row]
         print(*str_list, sep=',')
