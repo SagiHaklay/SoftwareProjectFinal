@@ -38,6 +38,9 @@ try:
         result = symNMF.ddg(dp)
     elif goal=='norm':
         result = symNMF.norm(dp)
+    elif goal=='init':
+        w = symNMF.norm(dp)
+        result = init_h(k, len(dp), w)
     # print result
     for row in result:
         str_list = ["%.4f" % cell for cell in row]
