@@ -41,7 +41,7 @@ try:
     w = symNMF.norm(dp)
     h = init_h(k, len(dp), w)
     nmf_result = symNMF.symnmf(h, w)
-    kmeans_result = kmeans.fit(dp, k, 0.001, 600)
+    kmeans_result = kmeans.fit(dp, k, 0.0001, 300)
     nmf_score = metrics.silhouette_score(dp, to_tag_array(nmf_result))
     kmeans_score = metrics.silhouette_score(dp, kmeans_result)
     print('nmf:', "%.4f" % nmf_score)
