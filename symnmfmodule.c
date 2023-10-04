@@ -97,6 +97,11 @@ void freeMatrix(double **mat, int rows) {
     free(mat);
 }
 
+void freeContinuousMatrix(double **mat) {
+    free(mat[0]);
+    free(mat);
+}
+
 static PyObject* symnmf_method(PyObject* self, PyObject* args) {
     PyObject *pyH, *pyW, *result;
     double **cResult, **cH, **cW;
@@ -110,7 +115,7 @@ static PyObject* symnmf_method(PyObject* self, PyObject* args) {
     result = matrixCToPython(cResult, rows, cols);
     freeMatrix(cH, rows);
     freeMatrix(cW, rows);
-    //freeMatrix(cResult, rows);
+    freeContinuousMatrix(cResult);
     return result;
 }
 
@@ -126,7 +131,7 @@ static PyObject* sym_method(PyObject* self, PyObject* args) {
     cResult = sym(&points);
     result = matrixCToPython(cResult, rowNum, rowNum);
     freePointList(points);
-    //freeMatrix(cResult, rowNum);
+    freeContinuousMatrix(cResult);
     return result;
 }
 
@@ -142,7 +147,7 @@ static PyObject* ddg_method(PyObject* self, PyObject* args) {
     cResult = ddg(&points);
     result = matrixCToPython(cResult, rowNum, rowNum);
     freePointList(points);
-    //freeMatrix(cResult, rowNum);
+    freeContinuousMatrix(cResult);
     return result;
 }
 
@@ -158,7 +163,7 @@ static PyObject* norm_method(PyObject* self, PyObject* args) {
     cResult = norm(&points);
     result = matrixCToPython(cResult, rowNum, rowNum);
     freePointList(points);
-    //freeMatrix(cResult, rowNum);
+    freeContinuousMatrix(cResult);
     return result;
 }
 

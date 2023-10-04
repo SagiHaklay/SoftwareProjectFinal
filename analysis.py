@@ -44,7 +44,7 @@ try:
     kmeans_result = kmeans.fit(dp, k, 0.001, 600)
     nmf_score = metrics.silhouette_score(dp, to_tag_array(nmf_result))
     kmeans_score = metrics.silhouette_score(dp, kmeans_result)
-    print('nmf:', nmf_score)
-    print('kmeans:', kmeans_score)
+    print('nmf:', "%.4f" % nmf_score)
+    print('kmeans:', "%.4f" % kmeans_score)
 except:
     handle_error()
