@@ -154,10 +154,9 @@ double frobeniusNorm(double** a, int rows, int columns) {
     for (i = 0; i < rows; ++i) {
         for (j = 0; j < columns; ++j) {
             sum += pow(fabs(a[i][j]),2);
-            sum = sqrt(sum);
         }
     }
-    return sum;
+    return sqrt(sum);
 }
 
 
