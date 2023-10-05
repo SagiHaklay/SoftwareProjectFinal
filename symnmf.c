@@ -1,7 +1,7 @@
 #include "symnmf.h"
 
 void handleError(void);
-double distance(Point p1, Point p2);
+double squaredDistance(Point p1, Point p2);
 void addPointToList(PointList*, Point);
 PointList readInput(char*);
 double** createMatrixDynamically(int rows, int columns);
@@ -9,8 +9,7 @@ void printMatrix(double **a, int rows, int columns);
 double** mulMatrices(double** a, double** b, int rowsA, int columnsARowsB, int columnsB);
 double** subMatrices(double** a, double** b, int rows, int columns);
 double** transpose(double** a, int rows, int columns);
-double frobeniusNorm(double** a, int rows, int columns);
-double** symnmf(double** h0, double** w, int rows, int columns);
+double squaredFrobeniusNorm(double** a, int rows, int columns);
 int isConverged(double** h0, double** h1, int rows, int columns);
 double** updateH(double** h, double** w, int rows, int columns);
 
@@ -19,13 +18,13 @@ void handleError(void) {
     exit(1);
 }
 
-double distance(Point p1, Point p2) {
+double squaredDistance(Point p1, Point p2) {
     double sum = 0.0;
     int i;
     for (i = 0; i < p1.length; i++){
         sum += pow(p1.data[i] - p2.data[i], 2);
     }
-    return sqrt(sum);
+    return sum;
 }
 
 void addPointToList(PointList *list, Point point) {
@@ -88,6 +87,8 @@ double** createMatrixDynamically(int rows, int columns) {
     int i;
     p = calloc(rows*columns, sizeof(double));
     a = calloc(rows,sizeof(double *));
+    if (p == NULL || a == NULL)
+        handleError();
     for (i=0; i<rows; i++)
         a[i] = p+i*columns;
     return a;
@@ -147,7 +148,7 @@ double** transpose(double** a, int rows, int columns) {
     return transposed;
 }
 
-double frobeniusNorm(double** a, int rows, int columns) {
+double squaredFrobeniusNorm(double** a, int rows, int columns) {
     double sum = 0.0;
     int i;
     int j;
@@ -156,7 +157,7 @@ double frobeniusNorm(double** a, int rows, int columns) {
             sum += pow(fabs(a[i][j]),2);
         }
     }
-    return sqrt(sum);
+    return sum;
 }
 
 
@@ -168,7 +169,7 @@ double** sym(PointList *pointList) {
     for (i=0 ; i<n; i++) {
         for (j=0 ; j<n; j++) {
             if (i != j)
-                a[i][j] = exp(-0.5 * pow(distance(pointList->pointsArr[i], pointList->pointsArr[j]), 2));
+                a[i][j] = exp(-0.5 * squaredDistance(pointList->pointsArr[i], pointList->pointsArr[j]));
             else
                 a[i][j] = 0.0;
         }
@@ -194,6 +195,7 @@ double** ddg(PointList *pointList) {
                 ddg[i][j] = 0.0;
         }
     }
+    free(symMatrix);
     return ddg;
 }
 
@@ -211,6 +213,7 @@ double** norm(PointList *pointList) {
             symMatrix[i][j] = ddgMatrix[i][i]*symMatrix[i][j]*ddgMatrix[j][j];
         }
     }
+    free(ddgMatrix);
     return symMatrix;
 }
 
@@ -223,8 +226,10 @@ double** symnmf(double** h0, double** w, int rows, int columns) {
     while (i < MAX_ITER) {
         h1 = updateH(h0, w, rows, columns);
         if (isConverged(h0, h1, rows, columns)){
+            free(h0);
             return h1;
         }
+        free(h0);
         h0 = h1;
         i++;
     }
@@ -233,7 +238,8 @@ double** symnmf(double** h0, double** w, int rows, int columns) {
 
 int isConverged(double** h0, double** h1, int rows, int columns) {
     double** sub = subMatrices(h1, h0, rows, columns);
-    double a = pow(frobeniusNorm(sub, rows, columns),2);
+    double a = squaredFrobeniusNorm(sub, rows, columns);
+    free(sub);
     if (a < EPS)
         return 1;
     else
@@ -256,11 +262,14 @@ double** updateH(double** h, double** w, int rows, int columns) {
             updated[i][j] = h[i][j]*(1-0.5+0.5*WH[i][j]/HTimesHtTimesH[i][j]);
         }
     }
+    free(HTimesHtTimesH);
+    free(HTimesHt);
+    free(Ht);
+    free(WH);
     return updated;
 }
 
 int main(int argc, char *argv[]) {
-
     PointList pointList, *pointListPtr;
     double** matrix = NULL;
     if (argc > 3) handleError();
@@ -276,5 +285,6 @@ int main(int argc, char *argv[]) {
         handleError();
     }
     printMatrix(matrix, pointList.length, pointList.length);
+    free(matrix);
     return 0;
 }
