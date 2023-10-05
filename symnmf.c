@@ -195,6 +195,7 @@ double** ddg(PointList *pointList) {
                 ddg[i][j] = 0.0;
         }
     }
+    free(symMatrix[0]);
     free(symMatrix);
     return ddg;
 }
@@ -213,6 +214,7 @@ double** norm(PointList *pointList) {
             symMatrix[i][j] = ddgMatrix[i][i]*symMatrix[i][j]*ddgMatrix[j][j];
         }
     }
+    free(ddgMatrix[0]);
     free(ddgMatrix);
     return symMatrix;
 }
@@ -226,9 +228,11 @@ double** symnmf(double** h0, double** w, int rows, int columns) {
     while (i < MAX_ITER) {
         h1 = updateH(h0, w, rows, columns);
         if (isConverged(h0, h1, rows, columns)){
+            free(h0[0]);
             free(h0);
             return h1;
         }
+        free(h0[0]);
         free(h0);
         h0 = h1;
         i++;
@@ -239,6 +243,7 @@ double** symnmf(double** h0, double** w, int rows, int columns) {
 int isConverged(double** h0, double** h1, int rows, int columns) {
     double** sub = subMatrices(h1, h0, rows, columns);
     double a = squaredFrobeniusNorm(sub, rows, columns);
+    free(sub[0]);
     free(sub);
     if (a < EPS)
         return 1;
@@ -262,9 +267,13 @@ double** updateH(double** h, double** w, int rows, int columns) {
             updated[i][j] = h[i][j]*(1-0.5+0.5*WH[i][j]/HTimesHtTimesH[i][j]);
         }
     }
+    free(HTimesHtTimesH[0]);
     free(HTimesHtTimesH);
+    free(HTimesHt[0]);
     free(HTimesHt);
+    free(Ht[0]);
     free(Ht);
+    free(WH[0]);
     free(WH);
     return updated;
 }
@@ -285,6 +294,7 @@ int main(int argc, char *argv[]) {
         handleError();
     }
     printMatrix(matrix, pointList.length, pointList.length);
+    free(matrix[0]);
     free(matrix);
     return 0;
 }
