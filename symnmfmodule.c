@@ -113,7 +113,6 @@ static PyObject* symnmf_method(PyObject* self, PyObject* args) {
     cW = matrixPytonToC(pyW, &rows, &rows, NULL);
     cResult = symnmf(cH, cW, rows, cols);
     result = matrixCToPython(cResult, rows, cols);
-    freeMatrix(cH, rows);
     freeMatrix(cW, rows);
     freeContinuousMatrix(cResult);
     return result;
